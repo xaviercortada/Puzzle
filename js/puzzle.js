@@ -230,7 +230,6 @@ function setBoard(){
 
 function onTouchStart(evt){
     evt.preventDefault();
-    log("touchstart.");
     var touches = evt.changedTouches;
     handleStart(touches[0].pageX, touches[0].pageY);
     canvas.addEventListener( 'touchmove', onTouchMove, false);
@@ -238,14 +237,12 @@ function onTouchStart(evt){
 
 function onTouchMove(evt){
     evt.preventDefault();
-    log("touchmove.");
     var touches = evt.changedTouches;
     handleMove(touches[0].pageX, touches[0].pageY);
 }
 
 function onTouchEnd(evt){
     evt.preventDefault();
-    log("touchmove.");
     var touches = evt.changedTouches;
     handleEnd(touches[0].pageX, touches[0].pageY);
 }
