@@ -170,6 +170,10 @@ function init(canvasId){
     var targetImg = $("#sampleImage").attr("src");
     setImage(targetImg);
 
+    canvas.addEventListener( 'touchstart', onTouchStart, false);
+    canvas.addEventListener( 'touchend', onTouchEnd, false);
+    canvas.addEventListener( 'toucleave', onTouchEnd, false);
+
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
 }
@@ -224,26 +228,70 @@ function setBoard(){
     board.state = states.started;
 }
 
-function myDown(e){
-  var x = e.pageX - canvas.offsetLeft;
-  var y = e.pageY - canvas.offsetTop;
+function onTouchStart(evt){
+    evt.preventDefault();
+    log("touchstart.");
+    var touches = evt.changedTouches;
+    handleStart(touches[0].pageX, touches[0].pageY);
+    canvas.addEventListener( 'touchmove', onTouchMove, false);
+}
 
-  var ix = Math.floor(x / board.dw);
-  var iy = Math.floor(y / board.dh);
+function onTouchMove(evt){
+    evt.preventDefault();
+    log("touchmove.");
+    var touches = evt.changedTouches;
+    handleMove(touches[0].pageX, touches[0].pageY);
+}
 
-   var cell = boardParts[ix][iy];
-    if(cell.solved) return;
+function onTouchEnd(evt){
+    evt.preventDefault();
+    log("touchmove.");
+    var touches = evt.changedTouches;
+    handleEnd(touches[0].pageX, touches[0].pageY);
+}
 
-  dragCell = new DragCell(cell,ix,iy);
-  dragCell.startDrag(x, y);
+function myDown(evt){
+    handleStart(evt.pageX, evt.pageY);
+}
 
-  canvas.onmousemove = myMove;
-  canvas.style.cursor = 'pointer';
+
+function myMove(evt){
+    handleMove(evt.pageX, evt.pageY);
 }
 
 function myUp(e){
-    var x = e.pageX - canvas.offsetLeft;
-    var y = e.pageY - canvas.offsetTop;
+    handleEnd(e.pageX, e.pageY);
+}
+
+
+function handleStart(pageX, pageY){
+    var x = pageX - canvas.offsetLeft;
+    var y = pageY - canvas.offsetTop;
+
+    var ix = Math.floor(x / board.dw);
+    var iy = Math.floor(y / board.dh);
+
+    var cell = boardParts[ix][iy];
+    if(cell.solved) return;
+
+    dragCell = new DragCell(cell,ix,iy);
+    dragCell.startDrag(x, y);
+
+    canvas.onmousemove = myMove;
+    canvas.style.cursor = 'pointer';
+}
+
+function handleMove(pageX, pageY){
+    var x = pageX - canvas.offsetLeft;
+    var y = pageY - canvas.offsetTop;
+    dragCell.moveDrag(x, y);
+    drawTiles();
+    dragCell.drawImage();
+}
+
+function handleEnd(pageX, pageY){
+    var x = pageX - canvas.offsetLeft;
+    var y = pageY - canvas.offsetTop;
 
     var ix = Math.floor(x / board.dw);
     var iy = Math.floor(y / board.dh);
@@ -255,20 +303,12 @@ function myUp(e){
 
     drawTiles();
 
+    canvas.removeEventListener( 'touchmove', onTouchMove, false);
     canvas.onmousemove = undefined;
     canvas.style.cursor = 'default';
 
-
 }
 
-
-function myMove(e){
-   var x = e.pageX - canvas.offsetLeft;
-   var y = e.pageY - canvas.offsetTop;
-   dragCell.moveDrag(x, y);
-   drawTiles();
-   dragCell.drawImage();
-}
 
 
 
